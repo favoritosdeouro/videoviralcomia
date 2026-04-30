@@ -590,8 +590,14 @@
     function toggleMute() {
       const v = document.getElementById('heroVideo');
       const b = document.getElementById('muteBtn');
+      
       v.muted = !v.muted;
-      b.textContent = v.muted ? '🔇' : '🔊';
+      v.volume = 1; // garante volume no máximo
+      
+      // força o play com som após interação
+      v.play().then(() => {
+        b.textContent = v.muted ? '🔇' : '🔊';
+      });
     }
   </script>
 
