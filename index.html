@@ -1,0 +1,889 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Frutas Falando – Viralizando com IA</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Nunito:wght@400;700;900&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --yellow: #FFD600;
+    --orange: #FF6A00;
+    --pink: #FF2D78;
+    --green: #00E676;
+    --dark: #0D0D0D;
+    --card-bg: #1a1a1a;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--dark);
+    color: #fff;
+    font-family: 'Nunito', sans-serif;
+    overflow-x: hidden;
+  }
+
+  /* ── HERO ── */
+  .hero {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 60px 20px 80px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .hero::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(ellipse 80% 60% at 50% 0%, rgba(255,106,0,.35) 0%, transparent 70%),
+      radial-gradient(ellipse 60% 50% at 80% 80%, rgba(255,45,120,.25) 0%, transparent 60%),
+      radial-gradient(ellipse 50% 40% at 10% 60%, rgba(0,230,118,.15) 0%, transparent 60%);
+    z-index: 0;
+  }
+
+  /* floating fruit emojis */
+  .floats { position: absolute; inset: 0; pointer-events: none; z-index: 0; }
+  .floats span {
+    position: absolute;
+    font-size: clamp(1.8rem, 4vw, 3.5rem);
+    animation: floatUp linear infinite;
+    opacity: .18;
+    filter: blur(1px);
+  }
+  .floats span:nth-child(1)  { left:5%;  animation-duration:14s; animation-delay:0s;   font-size:3rem; }
+  .floats span:nth-child(2)  { left:15%; animation-duration:11s; animation-delay:3s;   font-size:2rem; }
+  .floats span:nth-child(3)  { left:25%; animation-duration:16s; animation-delay:1s;   font-size:3.5rem; }
+  .floats span:nth-child(4)  { left:40%; animation-duration:13s; animation-delay:5s;   font-size:2.5rem; }
+  .floats span:nth-child(5)  { left:55%; animation-duration:10s; animation-delay:2s;   font-size:4rem; }
+  .floats span:nth-child(6)  { left:68%; animation-duration:15s; animation-delay:4s;   font-size:2rem; }
+  .floats span:nth-child(7)  { left:78%; animation-duration:12s; animation-delay:6s;   font-size:3rem; }
+  .floats span:nth-child(8)  { left:90%; animation-duration:17s; animation-delay:1s;   font-size:2.5rem; }
+  .floats span:nth-child(9)  { left:48%; animation-duration:9s;  animation-delay:8s;   font-size:2rem; }
+  .floats span:nth-child(10) { left:32%; animation-duration:18s; animation-delay:0s;   font-size:1.8rem; }
+
+  @keyframes floatUp {
+    0%   { transform: translateY(110vh) rotate(0deg);   opacity: 0; }
+    10%  { opacity: .18; }
+    90%  { opacity: .18; }
+    100% { transform: translateY(-10vh) rotate(20deg);  opacity: 0; }
+  }
+
+  .hero > * { position: relative; z-index: 1; }
+
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(255,214,0,.15);
+    border: 1px solid var(--yellow);
+    border-radius: 999px;
+    padding: 6px 18px;
+    font-size: .85rem;
+    font-weight: 700;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    color: var(--yellow);
+    margin-bottom: 28px;
+    animation: fadeDown .6s ease both;
+  }
+  .badge::before { content: '🔥'; font-size: 1rem; }
+
+  .hero h1 {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(3.2rem, 10vw, 8rem);
+    line-height: .95;
+    letter-spacing: .02em;
+    animation: fadeDown .7s .1s ease both;
+  }
+  .hero h1 span.accent { color: var(--yellow); }
+  .hero h1 span.pink   { color: var(--pink); }
+
+  .hero .subtitle {
+    max-width: 620px;
+    margin: 24px auto 0;
+    font-size: clamp(1rem, 2.5vw, 1.3rem);
+    color: #ccc;
+    line-height: 1.6;
+    animation: fadeDown .8s .2s ease both;
+  }
+
+  .hero-img-wrap {
+    margin: 36px auto;
+    max-width: 680px;
+    width: 100%;
+    border-radius: 20px;
+    overflow: hidden;
+    box-shadow: 0 0 80px rgba(255,106,0,.5), 0 0 0 2px rgba(255,214,0,.3);
+    animation: fadeDown .9s .3s ease both;
+  }
+  .hero-img-wrap img { width: 100%; display: block; }
+
+  /* ── CTA BUTTON ── */
+  .cta-wrap { animation: fadeDown 1s .4s ease both; }
+
+  .cta-btn {
+    display: inline-block;
+    background: linear-gradient(135deg, var(--orange), var(--pink));
+    color: #fff;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(1.3rem, 3.5vw, 1.8rem);
+    letter-spacing: .08em;
+    padding: 20px 52px;
+    border-radius: 999px;
+    text-decoration: none;
+    position: relative;
+    overflow: hidden;
+    transition: transform .2s, box-shadow .2s;
+    box-shadow: 0 8px 40px rgba(255,45,120,.5);
+  }
+  .cta-btn::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, transparent 40%, rgba(255,255,255,.18) 60%, transparent 70%);
+    transform: translateX(-100%);
+    transition: transform .5s;
+  }
+  .cta-btn:hover { transform: translateY(-3px) scale(1.03); box-shadow: 0 14px 50px rgba(255,45,120,.65); }
+  .cta-btn:hover::after { transform: translateX(100%); }
+
+  .cta-sub {
+    margin-top: 14px;
+    font-size: .85rem;
+    color: #888;
+  }
+  .cta-sub span { color: var(--green); font-weight: 700; }
+
+  /* ── SOCIAL PROOF BAR ── */
+  .proof-bar {
+    background: rgba(255,214,0,.07);
+    border-top: 1px solid rgba(255,214,0,.15);
+    border-bottom: 1px solid rgba(255,214,0,.15);
+    padding: 22px 20px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: clamp(20px, 6vw, 80px);
+    flex-wrap: wrap;
+  }
+  .proof-item { text-align: center; }
+  .proof-item .num {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(2rem, 5vw, 3rem);
+    color: var(--yellow);
+    line-height: 1;
+  }
+  .proof-item .label { font-size: .8rem; color: #999; text-transform: uppercase; letter-spacing: .06em; }
+
+  /* ── SECTIONS shared ── */
+  section { padding: 80px 20px; }
+
+  .section-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(2.2rem, 6vw, 4rem);
+    text-align: center;
+    margin-bottom: 14px;
+  }
+  .section-title .accent { color: var(--yellow); }
+  .section-sub {
+    text-align: center;
+    color: #aaa;
+    max-width: 560px;
+    margin: 0 auto 52px;
+    font-size: 1.05rem;
+    line-height: 1.6;
+  }
+
+  /* ── PAIN POINTS ── */
+  .pain { background: #111; }
+  .pain-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 24px;
+    max-width: 960px;
+    margin: 0 auto;
+  }
+  .pain-card {
+    background: var(--card-bg);
+    border: 1px solid rgba(255,45,120,.2);
+    border-radius: 16px;
+    padding: 28px 24px;
+    display: flex;
+    gap: 16px;
+    align-items: flex-start;
+    transition: border-color .3s;
+  }
+  .pain-card:hover { border-color: rgba(255,45,120,.5); }
+  .pain-card .icon { font-size: 2rem; flex-shrink: 0; }
+  .pain-card h3 { font-size: 1.05rem; font-weight: 900; margin-bottom: 6px; }
+  .pain-card p { font-size: .9rem; color: #aaa; line-height: 1.5; }
+
+  /* ── WHAT YOU LEARN ── */
+  .learn { background: var(--dark); }
+  .learn-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 20px;
+    max-width: 900px;
+    margin: 0 auto;
+  }
+  .learn-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    background: var(--card-bg);
+    border: 1px solid rgba(0,230,118,.15);
+    border-radius: 14px;
+    padding: 22px 20px;
+    transition: border-color .3s;
+  }
+  .learn-item:hover { border-color: rgba(0,230,118,.4); }
+  .learn-item .check {
+    background: var(--green);
+    color: #000;
+    width: 28px; height: 28px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1rem; flex-shrink: 0; font-weight: 900;
+  }
+  .learn-item p { font-size: .95rem; color: #ddd; line-height: 1.5; }
+  .learn-item p strong { color: #fff; }
+
+  /* ── HOW IT WORKS ── */
+  .how { background: #111; }
+  .steps {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    max-width: 700px;
+    margin: 0 auto;
+    position: relative;
+  }
+  .steps::before {
+    content: '';
+    position: absolute;
+    left: 30px;
+    top: 0; bottom: 0;
+    width: 2px;
+    background: linear-gradient(to bottom, var(--orange), var(--pink));
+  }
+  .step {
+    display: flex;
+    gap: 24px;
+    padding: 0 0 44px 0;
+    position: relative;
+  }
+  .step-num {
+    width: 62px; height: 62px;
+    flex-shrink: 0;
+    background: linear-gradient(135deg, var(--orange), var(--pink));
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.8rem;
+    position: relative; z-index: 1;
+    box-shadow: 0 0 0 4px var(--dark), 0 0 20px rgba(255,106,0,.4);
+  }
+  .step-content h3 { font-size: 1.15rem; font-weight: 900; margin-bottom: 6px; }
+  .step-content p  { font-size: .9rem; color: #aaa; line-height: 1.6; }
+
+  /* ── TESTIMONIALS ── */
+  .testimonials { background: var(--dark); }
+  .testi-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 24px;
+    max-width: 960px;
+    margin: 0 auto;
+  }
+  .testi-card {
+    background: var(--card-bg);
+    border: 1px solid rgba(255,214,0,.15);
+    border-radius: 16px;
+    padding: 28px 24px;
+    position: relative;
+  }
+  .testi-card::before {
+    content: '"';
+    position: absolute;
+    top: 12px; left: 20px;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 5rem;
+    line-height: 1;
+    color: rgba(255,214,0,.12);
+  }
+  .testi-card .stars { color: var(--yellow); font-size: 1rem; margin-bottom: 12px; }
+  .testi-card p { font-size: .95rem; color: #ccc; line-height: 1.6; margin-bottom: 18px; }
+  .testi-author { display: flex; align-items: center; gap: 12px; }
+  .testi-avatar {
+    width: 44px; height: 44px; border-radius: 50%;
+    background: linear-gradient(135deg, var(--orange), var(--pink));
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.2rem;
+  }
+  .testi-name { font-weight: 900; font-size: .9rem; }
+  .testi-role { font-size: .78rem; color: #888; }
+
+  /* ── OFFER BOX ── */
+  .offer-section { background: #111; }
+  .offer-box {
+    max-width: 680px;
+    margin: 0 auto;
+    background: var(--card-bg);
+    border: 2px solid var(--yellow);
+    border-radius: 24px;
+    padding: 48px 36px;
+    text-align: center;
+    box-shadow: 0 0 60px rgba(255,214,0,.12);
+    position: relative;
+    overflow: hidden;
+  }
+  .offer-box::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse 80% 50% at 50% -10%, rgba(255,214,0,.1), transparent 70%);
+  }
+  .offer-box > * { position: relative; }
+  .offer-label {
+    display: inline-block;
+    background: var(--yellow);
+    color: #000;
+    font-weight: 900;
+    font-size: .8rem;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+    padding: 5px 18px;
+    border-radius: 999px;
+    margin-bottom: 20px;
+  }
+  .offer-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(2rem, 5vw, 3rem);
+    line-height: 1.1;
+    margin-bottom: 20px;
+  }
+  .offer-includes {
+    list-style: none;
+    text-align: left;
+    margin: 24px auto;
+    max-width: 440px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  .offer-includes li {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    font-size: .95rem;
+    color: #ddd;
+  }
+  .offer-includes li::before {
+    content: '✅';
+    flex-shrink: 0;
+  }
+  .price-block { margin: 28px 0 10px; }
+  .price-old {
+    font-size: 1rem;
+    color: #666;
+    text-decoration: line-through;
+    margin-bottom: 4px;
+  }
+  .price-new {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(3rem, 8vw, 5rem);
+    line-height: 1;
+    color: var(--green);
+  }
+  .price-new small {
+    font-family: 'Nunito', sans-serif;
+    font-size: 1rem;
+    font-weight: 700;
+    color: #aaa;
+    vertical-align: middle;
+  }
+  .price-installment { font-size: .88rem; color: #999; margin-top: 6px; }
+  .guarantee {
+    margin-top: 28px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    justify-content: center;
+    background: rgba(0,230,118,.07);
+    border: 1px solid rgba(0,230,118,.2);
+    border-radius: 12px;
+    padding: 14px 20px;
+    font-size: .88rem;
+    color: #ccc;
+  }
+  .guarantee .g-icon { font-size: 2rem; flex-shrink: 0; }
+
+  /* ── FAQ ── */
+  .faq { background: var(--dark); }
+  .faq-list { max-width: 700px; margin: 0 auto; display: flex; flex-direction: column; gap: 12px; }
+  details {
+    background: var(--card-bg);
+    border: 1px solid rgba(255,255,255,.08);
+    border-radius: 14px;
+    overflow: hidden;
+    transition: border-color .3s;
+  }
+  details[open] { border-color: rgba(255,214,0,.35); }
+  summary {
+    padding: 20px 24px;
+    font-weight: 700;
+    cursor: pointer;
+    list-style: none;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    font-size: .97rem;
+    user-select: none;
+  }
+  summary::after {
+    content: '+';
+    font-size: 1.4rem;
+    font-weight: 300;
+    flex-shrink: 0;
+    transition: transform .3s;
+    color: var(--yellow);
+  }
+  details[open] summary::after { transform: rotate(45deg); }
+  details p { padding: 0 24px 20px; font-size: .9rem; color: #aaa; line-height: 1.7; }
+
+  /* ── FINAL CTA ── */
+  .final-cta {
+    background: linear-gradient(135deg, #1a0d00 0%, #0d0d0d 50%, #1a0018 100%);
+    text-align: center;
+    padding: 100px 20px;
+    position: relative;
+    overflow: hidden;
+  }
+  .final-cta::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(ellipse 70% 60% at 30% 50%, rgba(255,106,0,.2) 0%, transparent 70%),
+      radial-gradient(ellipse 60% 50% at 70% 50%, rgba(255,45,120,.2) 0%, transparent 70%);
+  }
+  .final-cta > * { position: relative; }
+  .final-cta h2 {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(2.5rem, 7vw, 5.5rem);
+    line-height: 1;
+    margin-bottom: 20px;
+  }
+  .final-cta p { color: #aaa; max-width: 520px; margin: 0 auto 40px; line-height: 1.6; }
+
+  /* ── FOOTER ── */
+  footer {
+    background: #080808;
+    padding: 32px 20px;
+    text-align: center;
+    color: #444;
+    font-size: .82rem;
+    border-top: 1px solid #1a1a1a;
+  }
+  footer a { color: #555; text-decoration: underline; }
+
+  /* ── STICKY CTA BAR ── */
+  .sticky-bar {
+    position: fixed;
+    bottom: 0; left: 0; right: 0;
+    background: rgba(13,13,13,.95);
+    backdrop-filter: blur(10px);
+    border-top: 1px solid rgba(255,214,0,.2);
+    padding: 14px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 20px;
+    z-index: 100;
+    transform: translateY(100%);
+    transition: transform .4s ease;
+    flex-wrap: wrap;
+  }
+  .sticky-bar.visible { transform: translateY(0); }
+  .sticky-bar span { font-size: .9rem; color: #ccc; }
+  .sticky-bar span strong { color: var(--yellow); }
+  .sticky-bar .cta-btn { padding: 12px 32px; font-size: 1.1rem; }
+
+  /* ── ANIMATIONS ── */
+  @keyframes fadeDown {
+    from { opacity: 0; transform: translateY(-20px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .reveal {
+    opacity: 0;
+    transform: translateY(30px);
+    transition: opacity .6s ease, transform .6s ease;
+  }
+  .reveal.in { opacity: 1; transform: translateY(0); }
+
+  /* ── RESPONSIVE ── */
+  @media (max-width: 600px) {
+    .steps::before { left: 24px; }
+    .step-num { width: 50px; height: 50px; font-size: 1.4rem; }
+    .offer-box { padding: 36px 20px; }
+    .proof-bar { gap: 24px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- Floating fruits bg -->
+<div class="floats" aria-hidden="true">
+  <span>🍓</span><span>🍉</span><span>🍍</span><span>🥭</span>
+  <span>🥝</span><span>🍋</span><span>🍊</span><span>🍇</span>
+  <span>🍑</span><span>🫐</span>
+</div>
+
+<!-- ═══════════════ HERO ═══════════════ -->
+<section class="hero">
+  <div class="badge">Método Viral de IA — Exclusivo 2025</div>
+
+  <h1>
+    Aprenda a criar<br>
+    <span class="accent">vídeos de frutas</span><br>
+    que <span class="pink">viralizam</span>
+  </h1>
+
+  <p class="subtitle">
+    O método passo a passo que criadores iniciantes estão usando para acumular <strong>milhões de visualizações</strong> com personagens de frutas gerados por IA — sem precisar aparecer, sem equipamento caro.
+  </p>
+
+  <div class="hero-img-wrap">
+    <video
+      autoplay
+      muted
+      loop
+      playsinline
+      style="width:100%; display:block; border-radius:20px;"
+    >
+      <source src="moranguete.mp4" type="video/mp4">
+    </video>
+  </div>
+
+  <!-- Sobrescreve a img com um visual gerado em CSS inspirado no material -->
+  <style>
+    .hero-img-wrap { position: relative; }
+    .hero-img-wrap img { display: none; }
+    .hero-img-wrap::after {
+      content: '🍓🍉🍍🥭🥝';
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: clamp(2.5rem, 8vw, 5rem);
+      gap: 12px;
+      min-height: 200px;
+      letter-spacing: 8px;
+      filter: drop-shadow(0 0 20px rgba(255,106,0,.7));
+      animation: pulse 2s ease-in-out infinite;
+    }
+    @keyframes pulse {
+      0%,100% { transform: scale(1); }
+      50%      { transform: scale(1.06); }
+    }
+  </style>
+
+  <div class="cta-wrap">
+    <a href="https://pay.kiwify.com.br/sAdyA7M?afid=YYou7knx" class="cta-btn" target="_blank" rel="noopener">
+      🚀 QUERO COMEÇAR A VIRALIZAR AGORA
+    </a>
+    <p class="cta-sub">⚡ Acesso imediato · <span>Garantia de 7 dias</span> · Sem risco</p>
+  </div>
+</section>
+
+<!-- ═══════════════ SOCIAL PROOF BAR ═══════════════ -->
+<div class="proof-bar">
+  <div class="proof-item"><div class="num">+8.000</div><div class="label">Alunos ativos</div></div>
+  <div class="proof-item"><div class="num">+50M</div><div class="label">Views gerados</div></div>
+  <div class="proof-item"><div class="num">97%</div><div class="label">Satisfação</div></div>
+  <div class="proof-item"><div class="num">7 dias</div><div class="label">Garantia total</div></div>
+</div>
+
+<!-- ═══════════════ DOR / IDENTIFICAÇÃO ═══════════════ -->
+<section class="pain">
+  <h2 class="section-title reveal">Você se identifica<br>com <span class="accent">alguma dessas situações</span>?</h2>
+  <p class="section-sub reveal">Se você respondeu sim pra qualquer uma, este curso foi feito exatamente pra você.</p>
+  <div class="pain-grid">
+    <div class="pain-card reveal">
+      <span class="icon">😩</span>
+      <div>
+        <h3>Cria conteúdo mas nada decola</h3>
+        <p>Você posta, posta e posta… e fica com 50 views. Parece que o algoritmo te odeia.</p>
+      </div>
+    </div>
+    <div class="pain-card reveal">
+      <span class="icon">😰</span>
+      <div>
+        <h3>Não quer aparecer na câmera</h3>
+        <p>Timidez, privacidade ou só preguiça mesmo — aparece não é pra todo mundo.</p>
+      </div>
+    </div>
+    <div class="pain-card reveal">
+      <span class="icon">💸</span>
+      <div>
+        <h3>Não tem grana pra equipamento</h3>
+        <p>Câmera, iluminação, microfone… parece que criar conteúdo de qualidade exige uma fortuna.</p>
+      </div>
+    </div>
+    <div class="pain-card reveal">
+      <span class="icon">🤯</span>
+      <div>
+        <h3>IA parece complicada demais</h3>
+        <p>Vê todo mundo falando de IA mas quando você tenta, fica perdido sem saber por onde começar.</p>
+      </div>
+    </div>
+    <div class="pain-card reveal">
+      <span class="icon">🕐</span>
+      <div>
+        <h3>Não tem tempo pra produzir</h3>
+        <p>Trabalho, família, vida… quem tem horas sobrando pra ficar editando vídeo?</p>
+      </div>
+    </div>
+    <div class="pain-card reveal">
+      <span class="icon">🎯</span>
+      <div>
+        <h3>Quer monetizar mas não sabe como</h3>
+        <p>Vê outros ganhando dinheiro com conteúdo e não consegue entender como replicar isso.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════ O QUE VOCÊ VAI APRENDER ═══════════════ -->
+<section class="learn">
+  <h2 class="section-title reveal">O que você vai <span class="accent">dominar</span> no curso</h2>
+  <p class="section-sub reveal">Um caminho direto, sem enrolação, do zero ao seu primeiro vídeo viral.</p>
+  <div class="learn-list">
+    <div class="learn-item reveal">
+      <span class="check">✓</span>
+      <p><strong>Criar personagens de frutas incríveis com IA</strong> — sem habilidade artística, em minutos.</p>
+    </div>
+    <div class="learn-item reveal">
+      <span class="check">✓</span>
+      <p><strong>Gerar vozes e falas engraçadas</strong> que prendem o espectador até o fim.</p>
+    </div>
+    <div class="learn-item reveal">
+      <span class="check">✓</span>
+      <p><strong>Montar vídeos completos com animação</strong> usando só o celular ou computador básico.</p>
+    </div>
+    <div class="learn-item reveal">
+      <span class="check">✓</span>
+      <p><strong>Fórmulas de roteiro viral</strong> — os gatilhos que fazem as pessoas compartilharem compulsivamente.</p>
+    </div>
+    <div class="learn-item reveal">
+      <span class="check">✓</span>
+      <p><strong>Estratégia de publicação e hashtags</strong> para TikTok, Reels e YouTube Shorts.</p>
+    </div>
+    <div class="learn-item reveal">
+      <span class="check">✓</span>
+      <p><strong>Como monetizar seu canal</strong> com parcerias, afiliados e venda de produtos digitais.</p>
+    </div>
+    <div class="learn-item reveal">
+      <span class="check">✓</span>
+      <p><strong>Produzir em escala</strong> — um sistema para criar vários vídeos por semana sem se estressar.</p>
+    </div>
+    <div class="learn-item reveal">
+      <span class="check">✓</span>
+      <p><strong>Ferramentas gratuitas de IA</strong> — zero investimento extra pra começar agora.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════ COMO FUNCIONA ═══════════════ -->
+<section class="how">
+  <h2 class="section-title reveal">Como funciona na <span class="accent">prática</span></h2>
+  <p class="section-sub reveal">4 passos simples do zero ao vídeo publicado.</p>
+  <div class="steps">
+    <div class="step reveal">
+      <div class="step-num">1</div>
+      <div class="step-content">
+        <h3>Escolhe o tema</h3>
+        <p>Você seleciona um assunto engraçado ou trending que queira abordar — pode ser um meme, uma notícia ou algo da sua rotina.</p>
+      </div>
+    </div>
+    <div class="step reveal">
+      <div class="step-num">2</div>
+      <div class="step-content">
+        <h3>Gera os personagens e o roteiro com IA</h3>
+        <p>Usando as ferramentas e prompts que vão te ensinar no curso, você cria frutas animadas únicas e um roteiro que prende do início ao fim.</p>
+      </div>
+    </div>
+    <div class="step reveal">
+      <div class="step-num">3</div>
+      <div class="step-content">
+        <h3>Monta o vídeo em minutos</h3>
+        <p>Com nosso método de edição simplificada, você une imagens, vozes e efeitos de forma rápida — mesmo sem experiência.</p>
+      </div>
+    </div>
+    <div class="step reveal">
+      <div class="step-num">4</div>
+      <div class="step-content">
+        <h3>Publica e acompanha viralizar</h3>
+        <p>Aprende a hora certa de postar, as legendas e hashtags certeiras, e observa seu conteúdo tomar vida nas redes.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════ DEPOIMENTOS ═══════════════ -->
+<section class="testimonials">
+  <h2 class="section-title reveal">Quem já <span class="accent">mudou de vida</span> com o método</h2>
+  <p class="section-sub reveal">Pessoas reais. Resultados reais. Sem truque.</p>
+  <div class="testi-grid">
+    <div class="testi-card reveal">
+      <div class="stars">★★★★★</div>
+      <p>Em 2 semanas seguindo o método já tinha meu primeiro vídeo com mais de 800 mil views. Não acreditei quando vi a notificação!</p>
+      <div class="testi-author">
+        <div class="testi-avatar">🍓</div>
+        <div>
+          <div class="testi-name">Camila R.</div>
+          <div class="testi-role">Criadora de conteúdo · SP</div>
+        </div>
+      </div>
+    </div>
+    <div class="testi-card reveal">
+      <div class="stars">★★★★★</div>
+      <p>Eu não sabia nada de IA, zero. Depois de 3 aulas já estava criando personagens incríveis. O passo a passo é perfeito pra quem é iniciante.</p>
+      <div class="testi-author">
+        <div class="testi-avatar">🥭</div>
+        <div>
+          <div class="testi-name">Pedro M.</div>
+          <div class="testi-role">Empreendedor digital · MG</div>
+        </div>
+      </div>
+    </div>
+    <div class="testi-card reveal">
+      <div class="stars">★★★★★</div>
+      <p>Fiz o investimento com medo de não conseguir, mas em 10 dias já monetizei o canal. Valeu cada centavo — e muito mais.</p>
+      <div class="testi-author">
+        <div class="testi-avatar">🍍</div>
+        <div>
+          <div class="testi-name">Larissa F.</div>
+          <div class="testi-role">Mãe e empreendedora · RJ</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════ OFERTA ═══════════════ -->
+<section class="offer-section">
+  <div class="offer-box reveal">
+    <span class="offer-label">🔥 Oferta Especial — Tempo Limitado</span>
+    <h2 class="offer-title">Tudo o que você precisa<br>pra <span style="color:var(--yellow)">viralizar com frutas</span></h2>
+
+    <ul class="offer-includes">
+      <li>Acesso completo ao curso Viralizando com IA</li>
+      <li>Mais de 20 aulas práticas em vídeo</li>
+      <li>Pack exclusivo de prompts de IA prontos</li>
+      <li>Comunidade privada de criadores</li>
+      <li>Atualizações vitalícias</li>
+      <li>Suporte direto com a equipe</li>
+    </ul>
+
+    <div class="price-block">
+      <div class="price-old">De R$ 197,00</div>
+      <div class="price-new"><small>R$</small> 47<small>,00</small></div>
+      <div class="price-installment">ou 3x de R$ 16,99 no cartão</div>
+    </div>
+
+    <a href="https://pay.kiwify.com.br/sAdyA7M?afid=YYou7knx" class="cta-btn" target="_blank" rel="noopener" style="display:inline-block; margin-top:28px;">
+      🍉 GARANTIR MEU ACESSO AGORA
+    </a>
+
+    <div class="guarantee">
+      <span class="g-icon">🛡️</span>
+      <span><strong>Garantia incondicional de 7 dias.</strong> Pediu o reembolso, devolvemos 100% do seu dinheiro. Sem perguntas, sem burocracia.</span>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════ FAQ ═══════════════ -->
+<section class="faq">
+  <h2 class="section-title reveal">Perguntas <span class="accent">frequentes</span></h2>
+  <p class="section-sub reveal">Tem dúvida? A resposta provavelmente está aqui.</p>
+  <div class="faq-list reveal">
+    <details>
+      <summary>Preciso ter experiência em IA ou edição de vídeo?</summary>
+      <p>Não! O curso foi montado do zero pra quem nunca tocou em nenhuma ferramenta de IA. Se você sabe usar um smartphone, você consegue seguir o método.</p>
+    </details>
+    <details>
+      <summary>Vou precisar comprar algum software caro?</summary>
+      <p>Não. O curso ensina o método usando ferramentas gratuitas ou com planos grátis suficientes pra você começar e já ter resultados antes de gastar qualquer centavo extra.</p>
+    </details>
+    <details>
+      <summary>Quanto tempo vou precisar por dia?</summary>
+      <p>Com 30 a 60 minutos por dia você já consegue produzir vídeos consistentemente. Muitos alunos fazem isso no horário de almoço ou antes de dormir.</p>
+    </details>
+    <details>
+      <summary>Funciona pra qualquer nicho?</summary>
+      <p>O formato de frutas animadas funciona especialmente bem em nichos de humor, entretenimento, educação e motivação. O curso te ensina como adaptar o método pro que faz mais sentido pra você.</p>
+    </details>
+    <details>
+      <summary>Como funciona a garantia de 7 dias?</summary>
+      <p>Você acessa todo o conteúdo do curso por 7 dias. Se por qualquer motivo não ficar satisfeito, é só entrar em contato e devolvemos 100% do valor pago. Simples assim.</p>
+    </details>
+    <details>
+      <summary>Tenho acesso vitalício?</summary>
+      <p>Sim! Pagou uma vez e o acesso é seu para sempre, incluindo todas as atualizações futuras que fizermos no curso.</p>
+    </details>
+  </div>
+</section>
+
+<!-- ═══════════════ FINAL CTA ═══════════════ -->
+<section class="final-cta">
+  <h2 reveal>Sua próxima publicação<br>pode ser <span style="color:var(--yellow)">o viral</span></h2>
+  <p>Milhares de pessoas já estão usando esse método. A única diferença entre elas e você agora é uma única decisão.</p>
+  <a href="https://pay.kiwify.com.br/sAdyA7M?afid=YYou7knx" class="cta-btn" target="_blank" rel="noopener">
+    🚀 COMEÇAR AGORA — SÓ R$ 47,00
+  </a>
+  <p style="margin-top:20px; font-size:.82rem; color:#555;">Compra 100% segura · Acesso imediato · Garantia de 7 dias</p>
+</section>
+
+<!-- ═══════════════ FOOTER ═══════════════ -->
+<footer>
+  <p>© 2025 Viralizando com IA — Todos os direitos reservados.</p>
+  <p style="margin-top:8px;">Este produto é vendido através da plataforma Kiwify. Os resultados podem variar de acordo com o esforço e dedicação de cada aluno.</p>
+</footer>
+
+<!-- ═══════════════ STICKY BAR ═══════════════ -->
+<div class="sticky-bar" id="stickyBar">
+  <span>🔥 Oferta por tempo limitado — <strong>R$ 47,00</strong></span>
+  <a href="https://pay.kiwify.com.br/sAdyA7M?afid=YYou7knx" class="cta-btn" target="_blank" rel="noopener">
+    GARANTIR MEU ACESSO
+  </a>
+</div>
+
+<script>
+  // ── Reveal on scroll ──
+  const reveals = document.querySelectorAll('.reveal');
+  const obs = new IntersectionObserver((entries) => {
+    entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('in'); obs.unobserve(e.target); } });
+  }, { threshold: 0.12 });
+  reveals.forEach(el => obs.observe(el));
+
+  // ── Sticky bar after hero ──
+  const hero = document.querySelector('.hero');
+  const bar  = document.getElementById('stickyBar');
+  window.addEventListener('scroll', () => {
+    bar.classList.toggle('visible', window.scrollY > hero.offsetHeight * 0.7);
+  }, { passive: true });
+</script>
+</body>
+</html>
